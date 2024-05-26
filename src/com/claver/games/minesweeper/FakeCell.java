@@ -6,6 +6,10 @@ public class FakeCell extends Cell {
     super(row, column);
   }
 
+  public FakeCell(Position position) {
+    super(position);
+  }
+
   @Override
   public void incrementNumber() {
     // empty method, does nothing

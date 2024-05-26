@@ -41,6 +41,7 @@ public class MineSweeper {
   private final Set<Integer> bombPositions = new HashSet<>();
 
   private Integer unrevealedCells = 0;
+  private Integer flagCounter = 0;
 
   public MineSweeper() {
     numRows = DEFAULT_NUM_ROWS;
@@ -67,6 +68,12 @@ public class MineSweeper {
   }
   public List<Cell> getCells() {
     return cells;
+  }
+  public Integer getUnrevealedCells() {
+    return unrevealedCells;
+  }
+  public Integer getFlagCounter() {
+    return flagCounter;
   }
 
   public void init() {
@@ -122,10 +129,11 @@ public class MineSweeper {
       rows.add(new ArrayList<>());
       for (int column = 0; column <= numColumns + 1; column++) {
         Cell cell;
+        Position position = new Position(row, column);
         if (row == 0 || column == 0 || row > numRows || column > numColumns) {
-          cell = new FakeCell(row, column);
+          cell = new FakeCell(position);
         } else {
-          cell = new RealCell(row, column);
+          cell = new RealCell(position);
           cells.add(cell);
         }
         rows.get(row).add(cell);
@@ -160,38 +168,63 @@ public class MineSweeper {
   }
 
 
-  public void revealCell(Integer row, Integer column) {
+  public void reveal(Integer row, Integer column) {
     Cell cell = rows.get(row).get(column);
     if (cell.isFlagged()) {
       System.out.println("Can't reveal a flagged cell! Unflag it first if you really want to reveal it");
     } else if (cell.isRevealed()) {
       System.out.println("Can't reveal an already revealed cell!");
     } else {
-      reveal(row, column);
+      revealCell(cell);
     }
   }
 
-  public void reveal(Integer row, Integer column) {
-    Cell cell = rows.get(row).get(column);
-    if (!cell.isRevealed()) {
-      if (cell.reveal()) {
-        unrevealedCells--;
+  private void revealCell(Cell cell) {
+    Set<Cell> cellsToReveal = new HashSet<>();
+    cellsToReveal.add(cell);
+    boolean done = false;
+    while (!done) {
+      Set<Cell> neighbourCells = new HashSet<>();
+      for (Cell cellToReveal : cellsToReveal) {
+        if (!cellToReveal.isRevealed()) {
+          if (cellToReveal.reveal()) {
+            unrevealedCells--;
+          }
+          if (cellToReveal.isEmpty()) {
+            neighbourCells.addAll(getNeighbourCellsToReveal(cellToReveal));
+          }
+        }
       }
-      if (cell.isEmpty()) {
-        revealNeighbours(row, column);
-      }
+
+      cellsToReveal.clear();
+      cellsToReveal.addAll(neighbourCells);
+      done = cellsToReveal.isEmpty();
     }
   }
 
-  private void revealNeighbours(Integer row, Integer column) {
-    reveal(row-1,column-1);
-    reveal(row-1, column);
-    reveal(row-1, column+1);
-    reveal(row, column-1);
-    reveal(row, column+1);
-    reveal(row+1, column-1);
-    reveal(row+1, column);
-    reveal(row+1, column+1);
+  private Set<Cell> getNeighbourCellsToReveal(Cell cell) {
+    List<Position> neighbouringPositions = getNeighbouringPositions(cell.getRow(), cell.getColumn());
+    Set<Cell> neighbourCells = new HashSet<>();
+    for (Position position : neighbouringPositions) {
+      Cell neighbourCell = rows.get(position.row).get(position.column);
+      if (!neighbourCell.isRevealed() && !neighbourCell.isFlagged() && neighbourCell instanceof RealCell) {
+        neighbourCells.add(neighbourCell);
+      }
+    }
+    return neighbourCells;
+  }
+
+  private static List<Position> getNeighbouringPositions(Integer row, Integer column) {
+    List<Position> neighbouringPositions = new ArrayList<>();
+    neighbouringPositions.add(new Position(row-1, column-1));
+    neighbouringPositions.add(new Position(row-1, column));
+    neighbouringPositions.add(new Position(row-1, column+1));
+    neighbouringPositions.add(new Position(row, column-1));
+    neighbouringPositions.add(new Position(row, column+1));
+    neighbouringPositions.add(new Position(row+1, column-1));
+    neighbouringPositions.add(new Position(row+1, column));
+    neighbouringPositions.add(new Position(row+1, column+1));
+    return neighbouringPositions;
   }
 
   public void revealBombs() {
@@ -203,16 +236,23 @@ public class MineSweeper {
   }
 
 
-  public boolean toggleFlag(Integer row, Integer column) {
+  public void toggleFlag(Integer row, Integer column) {
     // To flag a cell is to mark it as possibly a bomb, to avoid revealing it
     // To un-flag it is to reverse the flagging, to set it as revealable again
     Cell cell = rows.get(row).get(column);
     if (!cell.isRevealed()) {
-      return cell.toggleFlag();
+      boolean wasFlagged = cell.isFlagged();
+      boolean flagged = cell.toggleFlag();
+      if (flagged) {
+        if (!wasFlagged && cell.isFlagged()) {
+          flagCounter++;
+        } else if (wasFlagged && !cell.isFlagged()) {
+          flagCounter--;
+        }
+      }
     } else {
       System.out.println("Can't flag / unflag this cell, it's already revealed!");
     }
-    return false;
   }
 
 

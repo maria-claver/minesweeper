@@ -22,6 +22,14 @@ public class TestMinesweeper {
   }
 
   @Test
+  public void testBigMineSweeper() {
+    MineSweeper mineSweeper = new MineSweeper(99, 99, 1);
+    assert mineSweeper.getNumRows().equals(99);
+    assert mineSweeper.getNumColumns().equals(99);
+    mineSweeper.reveal(50, 50);
+  }
+
+  @Test
   public void testDefaultNumBombs() {
     MineSweeper mineSweeper = new MineSweeper(1, 2, null);
     assert mineSweeper.getNumBombs().equals(1);
@@ -44,7 +52,7 @@ public class TestMinesweeper {
   @Test
   public void testRevealEmptyCell() {
     MineSweeper mineSweeper = new MineSweeper(30, 30, 1);
-    mineSweeper.revealCell(1, 1);
+    mineSweeper.reveal(1, 1);
     String result = mineSweeper.toString();
     assert (result.length() - result.replaceAll("-","").length()) > 1;
   }
@@ -53,7 +61,7 @@ public class TestMinesweeper {
   public void testRevealBomb() {
     MineSweeper mineSweeper = new MineSweeper(2, 2, 1);
     mineSweeper.getCells().get(0).setBomb(true);
-    mineSweeper.revealCell(1, 1);
+    mineSweeper.reveal(1, 1);
   }
 
   @Test

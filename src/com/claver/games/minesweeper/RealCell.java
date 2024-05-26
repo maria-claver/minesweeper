@@ -1,12 +1,17 @@
 package com.claver.games.minesweeper;
 
 public class RealCell extends Cell {
+
   public RealCell(Integer row, Integer column) {
     super(row, column);
   }
 
-  public RealCell(Integer row, Integer column, boolean bomb, Integer number) {
-    super(row, column, bomb, number);
+  public RealCell(Position position) {
+    super(position);
+  }
+
+  public RealCell(Position position, boolean bomb, Integer number) {
+    super(position, bomb, number);
   }
 
   @Override
@@ -32,7 +37,7 @@ public class RealCell extends Cell {
   public boolean toggleFlag() {
     if (!isRevealed()) {
       setFlagged(!isFlagged());
-      return isFlagged();
+      return true;
     }
     return false;
   }

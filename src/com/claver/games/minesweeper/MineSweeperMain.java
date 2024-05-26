@@ -28,6 +28,8 @@ public class MineSweeperMain {
     boolean finished = false;
     while (!finished) {
       System.out.println(mineSweeper);
+      System.out.println("Number of unrevealed cells: " + mineSweeper.getUnrevealedCells());
+      System.out.println("Number of flagged cells: " + mineSweeper.getFlagCounter());
       System.out.println("> Enter row of cell : ");
       Integer row = readIntegerFromTerminal(mineSweeper.getNumRows());
       System.out.println("> Enter column of cell : ");
@@ -38,7 +40,7 @@ public class MineSweeperMain {
         mineSweeper.toggleFlag(row, column);
       } else {
         try {
-          mineSweeper.revealCell(row, column);
+          mineSweeper.reveal(row, column);
         } catch (UnsupportedOperationException e) {
           mineSweeper.revealBombs();
           System.out.println(mineSweeper);
@@ -64,8 +66,18 @@ public class MineSweeperMain {
   private static MineSweeper createParametrizedMineSweeper() throws IOException {
     System.out.println("Let's create the board:");
 
-    Integer numRows = getNumRows();
-    Integer numColumns = getNumColumns();
+    Integer numRows = 0;
+    Integer numColumns = 0;
+    boolean correctSize = false;
+    while (!correctSize) {
+      numRows = getNumRows();
+      numColumns = getNumColumns();
+      if (numRows * numColumns <= 1) {
+        System.out.println("Board is too small!, please try another size:");
+      } else {
+        correctSize = true;
+      }
+    }
     Integer numBombs = getNumBombs(numRows, numColumns);
 
     return new MineSweeper(numRows, numColumns, numBombs);

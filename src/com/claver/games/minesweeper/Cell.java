@@ -1,8 +1,7 @@
 package com.claver.games.minesweeper;
 
 public abstract class Cell {
-  private final Integer row;
-  private final Integer column;
+  private final Position position;
 
   private boolean bomb;
   private Integer number;
@@ -10,12 +9,15 @@ public abstract class Cell {
   private boolean flagged;
 
   protected Cell(Integer row, Integer column) {
-    this(row, column, false, 0);
+    this(new Position(row, column));
   }
 
-  protected Cell(Integer row, Integer column, boolean bomb, Integer number) {
-    this.row = row;
-    this.column = column;
+  protected Cell(Position position) {
+    this(position, false, 0);
+  }
+
+  protected Cell(Position position, boolean bomb, Integer number) {
+    this.position = position;
     this.bomb = bomb;
     if (!bomb) {
       this.number = number;
@@ -26,12 +28,16 @@ public abstract class Cell {
     this.flagged = false;
   }
 
+  public Position getPosition() {
+    return this.position;
+  }
+
   public Integer getRow() {
-    return this.row;
+    return this.position.row;
   }
 
   public Integer getColumn() {
-    return this.column;
+    return this.position.column;
   }
 
   public boolean isBomb() {
