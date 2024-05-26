@@ -17,6 +17,11 @@ public class FakeCell extends Cell {
   }
 
   @Override
+  public boolean toggleFlag() {
+    return false;
+  }
+
+  @Override
   public boolean isEmpty() {
     return false;
   }

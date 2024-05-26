@@ -7,6 +7,7 @@ public abstract class Cell {
   private boolean bomb;
   private Integer number;
   private boolean revealed;
+  private boolean flagged;
 
   protected Cell(Integer row, Integer column) {
     this(row, column, false, 0);
@@ -22,6 +23,7 @@ public abstract class Cell {
       this.number = 0;
     }
     this.revealed = false;
+    this.flagged = false;
   }
 
   public Integer getRow() {
@@ -44,6 +46,10 @@ public abstract class Cell {
     return this.revealed;
   }
 
+  public boolean isFlagged() {
+    return this.flagged;
+  }
+
   public void setBomb(boolean bomb) {
     this.bomb = bomb;
   }
@@ -56,13 +62,21 @@ public abstract class Cell {
     this.revealed = revealed;
   }
 
+  public void setFlagged(boolean flagged) {
+    this.flagged = flagged;
+  }
+
+
   public abstract boolean reveal();
+
+  public abstract boolean toggleFlag();
 
   public boolean isEmpty() {
     return number == 0;
   }
 
   public abstract void incrementNumber();
+
 
   public String toString() {
     return print(false);
@@ -72,7 +86,9 @@ public abstract class Cell {
     String prefix = showAll && !isRevealed() ? "(" : " ";
     String suffix = showAll && !isRevealed() ? ")" : " ";
     String body = " ";
-    if (showAll || isRevealed()) {
+    if (isFlagged()) {
+      body = "F";
+    } else if (showAll || isRevealed()) {
       body = printBody();
     }
     return prefix + body + suffix;

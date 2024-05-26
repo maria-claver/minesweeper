@@ -84,4 +84,38 @@ public class TestRealCell {
     assert cell.printBody().equals("B");
   }
 
+  @Test
+  public void testFlagUnflagCell() {
+    Cell cell = new RealCell(1, 1, false, 2);
+    assert !cell.isFlagged();
+    cell.toggleFlag();
+    assert cell.isFlagged();
+    cell.toggleFlag();
+    assert !cell.isFlagged();
+  }
+
+  @Test
+  public void testRevealAlreadyRevealedCell() {
+    Cell cell = new RealCell(1, 2, false, 2);
+    cell.setRevealed(true);
+    assert !cell.reveal();
+    assert cell.isRevealed();
+  }
+
+  @Test
+  public void testRevealFlaggedCell() {
+    Cell cell = new RealCell(1, 2, false, 2);
+    cell.setFlagged(true);
+    assert !cell.reveal();
+    assert !cell.isRevealed();
+  }
+
+  @Test
+  public void testFlagAlreadyRevealedCell() {
+    Cell cell = new RealCell(1, 2, false, 2);
+    cell.setRevealed(true);
+    assert !cell.toggleFlag();
+    assert !cell.isFlagged();
+  }
+
 }

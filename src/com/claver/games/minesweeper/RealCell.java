@@ -18,15 +18,25 @@ public class RealCell extends Cell {
 
   @Override
   public boolean reveal() {
-    if (isBomb()) {
-      throw new UnsupportedOperationException();
-    }
-    if (!isRevealed()) {
+    if (!isRevealed() && !isFlagged()) {
+      if (isBomb()) {
+        throw new UnsupportedOperationException();
+      }
       setRevealed(true);
       return true;
     }
     return false;
   }
+
+  @Override
+  public boolean toggleFlag() {
+    if (!isRevealed()) {
+      setFlagged(!isFlagged());
+      return isFlagged();
+    }
+    return false;
+  }
+
 
   @Override
   public String printBody() {

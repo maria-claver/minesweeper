@@ -28,27 +28,33 @@ public class MineSweeperMain {
     boolean finished = false;
     while (!finished) {
       System.out.println(mineSweeper);
-      System.out.println("> Enter row of cell to reveal: ");
+      System.out.println("> Enter row of cell : ");
       Integer row = readIntegerFromTerminal(mineSweeper.getNumRows());
-      System.out.println("> Enter column of cell to reveal: ");
+      System.out.println("> Enter column of cell : ");
       Integer column = readIntegerFromTerminal(mineSweeper.getNumColumns());
-      try {
-        mineSweeper.reveal(row, column);
-      } catch (UnsupportedOperationException e) {
-        mineSweeper.revealBombs();
-        System.out.println(mineSweeper);
-        System.out.println("KABOOM!!! Sorry, you lost :(\n");
-        finished = true;
-      }
-      if (mineSweeper.areAllCellsRevealed()) {
-        System.out.println(mineSweeper);
-        System.out.println("YAYYY!!! YOU WON! :D\n");
-        finished = true;
+      System.out.println("Flag/UnFlag (F) or Reveal the cell (any other key) ?");
+      boolean flag = readBooleanFromTerminal("F");
+      if (flag) {
+        mineSweeper.toggleFlag(row, column);
+      } else {
+        try {
+          mineSweeper.revealCell(row, column);
+        } catch (UnsupportedOperationException e) {
+          mineSweeper.revealBombs();
+          System.out.println(mineSweeper);
+          System.out.println("KABOOM!!! Sorry, you lost :(\n");
+          finished = true;
+        }
+        if (mineSweeper.areAllCellsRevealed()) {
+          System.out.println(mineSweeper);
+          System.out.println("YAYYY!!! YOU WON! :D\n");
+          finished = true;
+        }
       }
     }
 
-    System.out.println("Wanna play again? (y/n) ");
-    if (readBooleanFromTerminal()) {
+    System.out.println("Wanna play again (Y) or exit (any other key) ?");
+    if (readBooleanFromTerminal("Y")) {
       play();
     } else {
       quit();
@@ -136,10 +142,10 @@ public class MineSweeperMain {
     return value;
   }
 
-  private static boolean readBooleanFromTerminal() throws IOException {
+  private static boolean readBooleanFromTerminal(String key) throws IOException {
     try {
       String stringValue = reader.readLine();
-      return stringValue.equals("Y") || stringValue.equals("y");
+      return stringValue.equalsIgnoreCase(key);
     } catch (IOException e) {
       System.out.println("ERROR reading from terminal: " + e.getMessage());
       throw e;

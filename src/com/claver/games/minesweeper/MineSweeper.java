@@ -69,7 +69,15 @@ public class MineSweeper {
     return cells;
   }
 
-  public void validateParameters() {
+  public void init() {
+    validateParameters();
+    initUnrevealedCells();
+    createCells();
+    setUpRandomBombPositions();
+    placeBombs();
+  }
+
+  private void validateParameters() {
     validateNumRows(numRows);
     validateNumColumns(numColumns);
     validateNumBombs(numBombs);
@@ -81,18 +89,7 @@ public class MineSweeper {
     }
   }
 
-  public void init() {
-    validateParameters();
-
-    unrevealedCells = numRows * numColumns - numBombs;
-    System.out.println("Setting unrevealedCells = " + unrevealedCells);
-
-    createCells();
-    setUpRandomBombPositions();
-    placeBombs();
-  }
-
-  public static void validateNumRows(Integer numRows) {
+  private static void validateNumRows(Integer numRows) {
     if (numRows < MIN_ROWS) {
       throw new IllegalArgumentException("Too few rows!");
     }
@@ -101,7 +98,7 @@ public class MineSweeper {
     }
   }
 
-  public static void validateNumColumns(Integer numColumns) {
+  private static void validateNumColumns(Integer numColumns) {
     if (numColumns < MIN_COLUMNS) {
       throw new IllegalArgumentException("Too few columns!");
     }
@@ -110,10 +107,14 @@ public class MineSweeper {
     }
   }
 
-  public static void validateNumBombs(Integer numBombs) {
+  private static void validateNumBombs(Integer numBombs) {
     if (numBombs < MIN_BOMBS) {
       throw new IllegalArgumentException("Too few bombs!");
     }
+  }
+
+  private void initUnrevealedCells() {
+    unrevealedCells = numRows * numColumns - numBombs;
   }
 
   private void createCells() {
@@ -158,20 +159,31 @@ public class MineSweeper {
     }
   }
 
+
+  public void revealCell(Integer row, Integer column) {
+    Cell cell = rows.get(row).get(column);
+    if (cell.isFlagged()) {
+      System.out.println("Can't reveal a flagged cell! Unflag it first if you really want to reveal it");
+    } else if (cell.isRevealed()) {
+      System.out.println("Can't reveal an already revealed cell!");
+    } else {
+      reveal(row, column);
+    }
+  }
+
   public void reveal(Integer row, Integer column) {
     Cell cell = rows.get(row).get(column);
     if (!cell.isRevealed()) {
       if (cell.reveal()) {
         unrevealedCells--;
       }
-      System.out.println("revealing cell (" + cell.getRow() + ", " + cell.getColumn() + "), unrevealed cells = " + unrevealedCells);
       if (cell.isEmpty()) {
         revealNeighbours(row, column);
       }
     }
   }
 
-  public void revealNeighbours(Integer row, Integer column) {
+  private void revealNeighbours(Integer row, Integer column) {
     reveal(row-1,column-1);
     reveal(row-1, column);
     reveal(row-1, column+1);
@@ -189,6 +201,20 @@ public class MineSweeper {
   public boolean areAllCellsRevealed() {
     return unrevealedCells <= 0;
   }
+
+
+  public boolean toggleFlag(Integer row, Integer column) {
+    // To flag a cell is to mark it as possibly a bomb, to avoid revealing it
+    // To un-flag it is to reverse the flagging, to set it as revealable again
+    Cell cell = rows.get(row).get(column);
+    if (!cell.isRevealed()) {
+      return cell.toggleFlag();
+    } else {
+      System.out.println("Can't flag / unflag this cell, it's already revealed!");
+    }
+    return false;
+  }
+
 
   public String toString() {
     return print(false, false);
